@@ -14,10 +14,9 @@ Bot Yueyue Pseudocode:
 
 '''
 
-
 import robot
 import time
-
+import kaans_vectors
 
 r = robot.Robot()
 start = time.perf_counter()
@@ -34,7 +33,7 @@ def proximity_timer_triggered():
 
 def go_to_centre():
     '''
-    HOW TF DO I WRITE THIS - Yueyue 2025
+    TODO implement going to centre - Yueyue 2025
     '''
     pass
 
@@ -75,24 +74,25 @@ def go_forward_to_box():
 
 def apply_kaans_vectors():
     '''
-    KAAN GET YOUR VECTOR STUFF IN HERE - Yueyue 2025
+    TODO implement vector handling - Yueyue 2025
     '''
     pass
 
 def go_home():
     '''
-    HOW TF DO I WRITE THIS - Yueyue 2025
+    TODO implement going home - Yueyue 2025
     '''
     pass
 
 def unload_stack():
     '''
-    HOW TF DO I WRITE THIS - Yueyue 2025
+    TODO implement unloading - Yueyue 2025
     '''
     pass
 
 
 def run_supply_drop_sequence():
+    apply_kaans_vectors()
     # Repeat until proximity timer (supply drop)
     while not proximity_timer_triggered():
         
@@ -106,9 +106,6 @@ def run_supply_drop_sequence():
             turn(15)
 
         go_forward_to_box()
-
-        # Use Kaan's vectors and stuff (placeholder)
-        apply_kaans_vectors()
 
         go_home()
 
