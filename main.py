@@ -22,6 +22,76 @@ import time
 r = robot.Robot()
 start = time.perf_counter()
 
+# --- Placeholder functions you must implement ---
+def proximity_timer_triggered():
+    end = time.perf_counter()
+    time =  120 - (start - end) #This assumes each round is 2 minutes - CHANGE IF NOT!
+    
+    if time < 35: # CAN CHANGE
+        return True
+    return False
+    
+
+def go_to_centre():
+    '''
+    HOW TF DO I WRITE THIS - Yueyue 2025
+    '''
+    pass
+
+def scan():
+    """
+    THIS IS MY WORK - Yueyue 2025
+    """
+    global last_markers
+
+    markers = r.see()
+    last_markers = []
+
+    for m in markers:
+        mtype = m.info.type
+        if mtype in ("CRATE", "DROP"):
+            last_markers.append(m)
+
+
+def target_found():
+    """
+    ALSO MINE - Yueyue 2025
+    """
+    global last_markers
+    return len(last_markers) > 0
+
+def turn(deg):
+    pass
+
+def go_forward_to_box():
+    """
+    ALSO MINE - Yueyue 2025
+    """
+    global last_markers
+    if target_found():
+        for target in last_markers:
+            turn(target.bearing.y)
+
+
+def apply_kaans_vectors():
+    '''
+    KAAN GET YOUR VECTOR STUFF IN HERE - Yueyue 2025
+    '''
+    pass
+
+def go_home():
+    '''
+    HOW TF DO I WRITE THIS - Yueyue 2025
+    '''
+    pass
+
+def unload_stack():
+    '''
+    HOW TF DO I WRITE THIS - Yueyue 2025
+    '''
+    pass
+
+
 def run_supply_drop_sequence():
     # Repeat until proximity timer (supply drop)
     while not proximity_timer_triggered():
@@ -43,41 +113,6 @@ def run_supply_drop_sequence():
         go_home()
 
         unload_stack()
-
-
-# --- Placeholder functions you must implement ---
-def proximity_timer_triggered():
-    end = time.perf_counter()
-    time =  120 - (start - end) #This assumes each round is 2 minutes - CHANGE IF NOT!
-    
-    if time < 35: # CAN CHANGE
-        return True
-    return False
-    
-
-def go_to_centre():
-    pass
-
-def scan():
-    pass
-
-def target_found():
-    return False
-
-def turn(deg):
-    pass
-
-def go_forward_to_box():
-    pass
-
-def apply_kaans_vectors():
-    pass
-
-def go_home():
-    pass
-
-def unload_stack():
-    pass
 
 
 # Example entry point
