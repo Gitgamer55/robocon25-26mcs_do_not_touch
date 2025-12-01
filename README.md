@@ -1,10 +1,3 @@
-__________ ________ __________ ________  _________  ________    _______   
-\______   \\_____  \\______   \\_____  \ \_   ___ \ \_____  \   \      \  
- |       _/ /   |   \|    |  _/ /   |   \/    \  \/  /   |   \  /   |   \ 
- |    |   \/    |    \    |   \/    |    \     \____/    |    \/    |    \
- |____|_  /\_______  /______  /\_______  /\______  /\_______  /\____|__  /
-        \/         \/       \/         \/        \/         \/         \/ 
-
 !!!DO NOT EDIT ANY CODE IN THIS REPOSITORY WITHOUT YUEYUE SUI'S EXPLICIT PERMISSION!!!
 
 !!!FAILURE TO DO SO WOULD RESULT IN A DEMOTION OR REMOVAL FROM THE MCS ROBOCON TEAM OF 2025-26!!!
@@ -12,6 +5,7 @@ __________ ________ __________ ________  _________  ________    _______
 !!!AFFECTED AREAS INCLUDE!!!
 
 !!!MAIN.PY!!!
+
 !!!THIS README FILE!!!
 
 !!!TO GAIN ACCESS TO THIS REPO, EMAIL CORRESPONDENCE WITH 19ysui@mcsoxford.org IS APPRECIATED!!!
