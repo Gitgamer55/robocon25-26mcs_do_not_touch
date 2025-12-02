@@ -40,6 +40,12 @@ def correct_pos():
         cpos[1] = 3
     elif cpos[-1] < -3:
         cpos[1] = -3
+    
+    if cpos[0] < 0.000001:
+        cpos[0] = 0
+    if cpos[1] < 0.000001:
+        cpos[1] = 0
+    
 
 def rotate_vector(vector, angle_degrees):
     x = vector[0]
@@ -126,6 +132,8 @@ def update_ALL(dist,bearing,rotation,tag):
     elif tag[1] == 3:
         tag_type = "up"
     
+    if rotation < 0:
+        rotation += 360
     tag_dir = tag_map[tag_type]
     tag_dir = rotate_vector(tag_dir,rotation)
     vector_guide = [tag_dir[0] * dist , tag_dir[1] * dist]
@@ -133,7 +141,52 @@ def update_ALL(dist,bearing,rotation,tag):
     cdir_angle = (bearing + 90 - rotation) % 360
     cdir = vectorcon(1,cdir_angle)
 
+def angle_coords(Pos1, Pos2, Dir):
+    #This section is ChatGPT I will make it easier to read at some point (;
+    """
+    Pos1: (x1, y1)  - starting point
+    Pos2: (x2, y2)  - target point
+    Dir:  (dx, dy)  - current direction vector (centered at Pos1)
+
+    Returns:
+        angle (float): signed angle in radians to rotate Dir so it aligns
+                       with the vector from Pos1 to Pos2.
+    """
+    x1, y1 = Pos1
+    x2, y2 = Pos2
+    dx_dir, dy_dir = Dir
+
+    # Vector from Pos1 to Pos2 (target direction)
+    vx = x2 - x1
+    vy = y2 - y1
+
+    # Check for degenerate case: Pos1 == Pos2
+    if vx == 0 and vy == 0:
+        raise ValueError("Pos1 and Pos2 are the same point; direction is undefined.")
+
+    # Normalise target vector
+    mag_v = math.hypot(vx, vy)
+    vx /= mag_v
+    vy /= mag_v
+
+    # Normalise Dir (in case it's not exactly length 1)
+    mag_dir = math.hypot(dx_dir, dy_dir)
+    if mag_dir == 0:
+        raise ValueError("Dir vector has zero length.")
+    dx_dir /= mag_dir
+    dy_dir /= mag_dir
+
+    # Dot product and "2D cross product" (determinant)
+    dot = dx_dir * vx + dy_dir * vy
+    det = dx_dir * vy - dy_dir * vx
+
+    # atan2(det, dot) gives signed angle from Dir -> target
+    angle = math.atan2(det, dot)
+
+    return math.degrees(angle)
+
 update_ALL(5,60,52,[3,2])
-
-
+update_dir_generic(angle_coords(cpos,[0,0],cdir),True)
+update_pos_generic(math.sqrt(cpos[0] ** 2 + cpos[1] ** 2))
+correct_pos()
 print(f"Current position: {cpos}. Current direction: {cdir}")

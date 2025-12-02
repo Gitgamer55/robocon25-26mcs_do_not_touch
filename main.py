@@ -60,7 +60,15 @@ def target_found():
     return len(last_markers) > 0
 
 def turn(deg):
-    pass
+    if deg < 180:
+        r.motors[0] = 50
+        r.motors[1] = -50
+    else:
+        r.motors[0] = -50
+        r.motors[1] = 50
+    sleep() # TODO - calculate sleep time for degrees
+    r.motors[0] = 0
+    r.motors[1] = 0
 
 def go_forward_to_box():
     """
@@ -72,11 +80,8 @@ def go_forward_to_box():
             turn(target.bearing.y)
 
 
-def apply_kaans_vectors():
-    '''
-    TODO implement vector handling - Yueyue 2025
-    '''
-    pass
+def apply_kaans_vectors(dist,bearing,rotation,tag):
+    kaans_vectors.update_ALL(dist,bearing,rotation,tag)
 
 def go_home():
     '''
