@@ -7,6 +7,32 @@ cpos = [0,0]
 cdir = [0,1]
 #The current direction our robot is facing, stored as a basis vector with a length of 1 unit
 
+tag_id = {
+    100:[-2.5,3],
+    101:[-1.5,3],
+    102:[-0.5,3],
+    103:[0.5,3],
+    104:[1.5,3],
+    105:[2.5,3],
+    106:[3,2.5],
+    107:[3,1.5],
+    108:[3,0.5],
+    109:[3,-0.5],
+    110:[3,-1.5],
+    111:[3,-2.5],
+    112:[2.5,-3],
+    113:[1.5,-3],
+    114:[0.5,-3],
+    115:[-0.5,-3],
+    116:[-1.5,-3],
+    117:[-2.5,-3],
+    118:[-3,-2.5],
+    119:[-3,-1.5],
+    120:[-3,-0.5],
+    121:[-3,0.5],
+    122:[-3,1.5],
+    123:[-3,2.5]
+}
 
 
 tag_map = {
@@ -92,9 +118,10 @@ def vectorcon(dist,angle):
 def update_ALL(dist,bearing,rotation,tag):
     global cdir
     global cpos
-    
+    global tag_id
     # Optimize tag_type lookup - use dictionary for O(1) lookup instead of if-elif chain
     # This assumes tag coordinates are exactly -3 or 3
+    tag = tag_id[tag]
     if tag[0] == -3:
         tag_type = "left"
     elif tag[0] == 3:
@@ -148,3 +175,7 @@ def dist_between(pos1,pos2):
     # Already optimal - math.hypot is fast and handles edge cases
     # Could inline if only called once, but keeping for reusability
     return math.hypot(pos1[0]-pos2[0], pos1[1]-pos2[1])
+
+
+
+
