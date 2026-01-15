@@ -1,0 +1,15 @@
+correct_pos():
+-Rounds the current position to basic floats or integers to make them easier to process. (simplify)
+
+update_dir():
+-Turns the current direction we are facing clockise or anticlockwise. (turn)
+
+update_pos():
+-Moves current position by the distance given in the direction we are facing. (move forward)
+
+update_ALL():
+-Updates the positions using the information given by looking at a tag. (analyse tag)
+
+work_to_coords():
+-Gives the angle required to turn and the distance required to move in order to get to the given coords.
+
