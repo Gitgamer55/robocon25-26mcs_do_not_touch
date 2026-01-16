@@ -59,6 +59,14 @@ def target_found():
     global last_markers
     return len(last_markers) > 0
 
+
+def move(dist):
+    r.motors[0] = 50
+    r.motors[1] = 50
+    sleep() # TODO - implement sleep time for distance
+    r.motors[0] = 0
+    r.motors[1] = 0
+
 def turn(deg):
     if deg < 180:
         r.motors[0] = 50
