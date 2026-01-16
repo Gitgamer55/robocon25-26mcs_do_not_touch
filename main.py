@@ -20,6 +20,10 @@ import kaans_vectors
 
 r = robot.Robot()
 start = time.perf_counter()
+dist_global = 0.1
+angle_global = 0.1
+
+
 
 # --- Placeholder functions you must implement ---
 def proximity_timer_triggered():
@@ -61,20 +65,21 @@ def target_found():
 
 
 def move(dist):
-    r.motors[0] = 50
-    r.motors[1] = 50
-    sleep() # TODO - implement sleep time for distance
+    r.motors[0] = 63
+    r.motors[1] = 63
+    sleep(dist * dist_global) # TODO - implement sleep time for distance
     r.motors[0] = 0
     r.motors[1] = 0
 
 def turn(deg):
+    deg %= 360
     if deg < 180:
-        r.motors[0] = 50
-        r.motors[1] = -50
+        r.motors[0] = 63
+        r.motors[1] = -63
     else:
-        r.motors[0] = -50
-        r.motors[1] = 50
-    sleep() # TODO - calculate sleep time for degrees
+        r.motors[0] = -63
+        r.motors[1] = 63
+    sleep((angle_global / 90)*deg) # TODO - calculate sleep time for degrees
     r.motors[0] = 0
     r.motors[1] = 0
 
