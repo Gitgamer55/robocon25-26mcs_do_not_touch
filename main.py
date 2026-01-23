@@ -20,8 +20,9 @@ import kaans_vectors
 
 r = robot.Robot()
 start = time.perf_counter()
-DIST = 0.1
-DEG = 0.1
+SPEED = 63 # Global speed for all robot functions
+DIST = 0.1 # TODO: time in seconds for robot to travel 1 metre at SPEED constant
+DEG = 0.1 # TODO: time in seconds to rotate 90 degrees at SPEED constant
 
 
 
@@ -65,8 +66,8 @@ def target_found():
 
 
 def move(dist):
-    r.motors[0] = 63
-    r.motors[1] = 63
+    r.motors[0] = SPEED
+    r.motors[1] = SPEED
     sleep(dist * DIST) # TODO - implement sleep time for distance
     r.motors[0] = 0
     r.motors[1] = 0
@@ -74,11 +75,11 @@ def move(dist):
 def turn(deg):
     deg %= 360
     if deg < 180:
-        r.motors[0] = 63
-        r.motors[1] = -63
+        r.motors[0] = SPEED
+        r.motors[1] = -(SPEED)
     else:
-        r.motors[0] = -63
-        r.motors[1] = 63
+        r.motors[0] = -(SPEED)
+        r.motors[1] = SPEED
     sleep((DEG / 90)*deg) # TODO - calculate sleep time for degrees
     r.motors[0] = 0
     r.motors[1] = 0
