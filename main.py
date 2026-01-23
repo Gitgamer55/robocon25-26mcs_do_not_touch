@@ -20,8 +20,8 @@ import kaans_vectors
 
 r = robot.Robot()
 start = time.perf_counter()
-dist_global = 0.1
-angle_global = 0.1
+DIST = 0.1
+DEG = 0.1
 
 
 
@@ -67,7 +67,7 @@ def target_found():
 def move(dist):
     r.motors[0] = 63
     r.motors[1] = 63
-    sleep(dist * dist_global) # TODO - implement sleep time for distance
+    sleep(dist * DIST) # TODO - implement sleep time for distance
     r.motors[0] = 0
     r.motors[1] = 0
 
@@ -79,7 +79,7 @@ def turn(deg):
     else:
         r.motors[0] = -63
         r.motors[1] = 63
-    sleep((angle_global / 90)*deg) # TODO - calculate sleep time for degrees
+    sleep((DEG / 90)*deg) # TODO - calculate sleep time for degrees
     r.motors[0] = 0
     r.motors[1] = 0
 
