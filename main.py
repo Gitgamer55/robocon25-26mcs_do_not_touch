@@ -21,10 +21,6 @@ import kaans_vectors
 r = robot.Robot()
 start = time.perf_counter()
 SPEED = 100 # Global speed for all robot functions
-DIST = 2.3 # TODO: time in seconds for robot to travel 1 metre at SPEED constant
-DEG = 0.1 # TODO: time in seconds to rotate 90 degrees at SPEED constant
-
-
 
 # --- Placeholder functions you must implement ---
 def proximity_timer_triggered():
