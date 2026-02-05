@@ -68,9 +68,14 @@ def target_found():
 # dist: speed in metres
 # speed: the speed in relation to 500 (max speed)
 def move(dist, speed):
-    r.motors[0] = 500 * (speed / 100)
-    r.motors[1] = 500 * (speed / 100)
-    t = (46 / speed) * dist
+    if dist > 0:
+        r.motors[0] = 500 * (speed / 100)
+        r.motors[1] = 495 * (speed / 100)
+    elif dist < 0:
+        r.motors[0] = -500 * (speed / 100)
+        r.motors[1] = -495 * (speed / 100)
+    t = (43 / speed) * abs(dist) 
+    print(f"Time to sleep: {t} For {abs(dist)} metres")
     sleep(t)
     r.motors[0] = 0
     r.motors[1] = 0
