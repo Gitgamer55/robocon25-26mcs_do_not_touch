@@ -1,12 +1,6 @@
-import robot
-
-from time import sleep
-
-r = robot.Robot()
-
-r.enable_12v = True
-
 import math
+
+team = "blue"
 
 cpos = [0,0]
 #The current position of the robot on a unit grid
@@ -14,7 +8,8 @@ cpos = [0,0]
 cdir = [0,1]
 #The current direction our robot is facing, stored as a basis vector with a length of 1 unit
 
-tag_id = {
+tag_id = {}
+tag_blue = {
     100:[-2.5,3],
     101:[-1.5,3],
     102:[-0.5,3],
@@ -41,6 +36,86 @@ tag_id = {
     123:[-3,2.5]
 }
 
+tag_red = {
+    100:tag_blue[118],
+    101:tag_blue[119],
+    102:tag_blue[120],
+    103:tag_blue[121],
+    104:tag_blue[122],
+    105:tag_blue[123],
+    106:tag_blue[100],
+    107:tag_blue[101],
+    108:tag_blue[102],
+    109:tag_blue[103],
+    110:tag_blue[104],
+    111:tag_blue[105],
+    112:tag_blue[106],
+    113:tag_blue[107],
+    114:tag_blue[108],
+    115:tag_blue[109],
+    116:tag_blue[110],
+    117:tag_blue[111],
+    118:tag_blue[112],
+    119:tag_blue[113],
+    120:tag_blue[114],
+    121:tag_blue[115],
+    122:tag_blue[116],
+    123:tag_blue[117],
+}
+
+tag_yellow = {
+    100:tag_blue[112],
+    101:tag_blue[113],
+    102:tag_blue[114],
+    103:tag_blue[115],
+    104:tag_blue[116],
+    105:tag_blue[117],
+    106:tag_blue[118],
+    107:tag_blue[119],
+    108:tag_blue[120],
+    109:tag_blue[121],
+    110:tag_blue[122],
+    111:tag_blue[123],
+    112:tag_blue[100],
+    113:tag_blue[101],
+    114:tag_blue[102],
+    115:tag_blue[103],
+    116:tag_blue[104],
+    117:tag_blue[105],
+    118:tag_blue[106],
+    119:tag_blue[107],
+    120:tag_blue[108],
+    121:tag_blue[109],
+    122:tag_blue[110],
+    123:tag_blue[111],
+}
+
+tag_green = {
+    100:tag_blue[106],
+    101:tag_blue[107],
+    102:tag_blue[108],
+    103:tag_blue[109],
+    104:tag_blue[110],
+    105:tag_blue[111],
+    106:tag_blue[112],
+    107:tag_blue[113],
+    108:tag_blue[114],
+    109:tag_blue[115],
+    110:tag_blue[116],
+    111:tag_blue[117],
+    112:tag_blue[118],
+    113:tag_blue[119],
+    114:tag_blue[120],
+    115:tag_blue[121],
+    116:tag_blue[122],
+    117:tag_blue[123],
+    118:tag_blue[100],
+    119:tag_blue[101],
+    120:tag_blue[102],
+    121:tag_blue[103],
+    122:tag_blue[104],
+    123:tag_blue[105],
+}
 
 tag_map = {
     
@@ -59,6 +134,18 @@ orientation_map = {
     3 : [-1,1],
     }
 
+
+match team:
+    case "blue":
+        tag_id = tag_blue
+    case "red":
+        tag_id = tag_red
+    case "yellow":
+        tag_id = tag_yellow
+    case "green":
+        tag_id = tag_green
+    case _:
+        raise ValueError("Invalid team")
 
 def correct_pos():
     # Use min/max for faster clamping - avoids multiple conditionals
@@ -88,11 +175,14 @@ def rotate_vector(vector, angle_degrees):
 
 
 
-def update_dir(angle):
+def update_dir(angle,clockwise):
     #Change the direction the robot is facing using the rotate_vector function
     global cdir
     # Use else to avoid redundant check - only one branch executes
-    cdir = rotate_vector(cdir, angle)
+    if clockwise:
+        cdir = rotate_vector(cdir, angle)
+    else:
+        cdir = rotate_vector(cdir, -angle)
         
 
     
@@ -180,7 +270,6 @@ def dist_between(pos1,pos2):
     # Could inline if only called once, but keeping for reusability
     return math.hypot(pos1[0]-pos2[0], pos1[1]-pos2[1])
 
-
 def move(dist, speed):
     # Motor 0 is right
     # Motor 1 is left
@@ -190,7 +279,7 @@ def move(dist, speed):
     elif dist < 0:
         r.motors[0] = -495 * (speed / 100)
         r.motors[1] = -500 * (speed / 100)
-    t = (43 / speed) * abs(dist) 
+    t = (82 / speed) * abs(dist)
     print(f"Time to sleep: {t} For {abs(dist)} metres")
     sleep(t)
     r.motors[0] = 0
@@ -203,31 +292,45 @@ def turn(deg, speed):
         r.motors[0] = -495 * (speed / 100)
         r.motors[1] = 500 * (speed / 100)
     else:
-        r.motors[0] = 495 * (speed / 100)
         r.motors[1] = -500 * (speed / 100)
-    sleep(abs((0.3)/90*deg))
+        r.motors[0] = 495 * (speed / 100)
+    t = abs(0.178/90*deg) / (speed / 100)
+    print(f"Time to sleep: {t} For {deg} degrees")
+    sleep(t)
     r.motors[0] = 0
     r.motors[1] = 0
     update_dir(deg)
 
-cpos = [-1,2]
-cdir = [1,0]
-move(1, 40)
-sleep(0.5)
-turn(90, 40)
-sleep(0.5)
-move(3, 40)
-sleep(0.5)
-turn(-45, 40)
-sleep(0.5)
-move(1.4, 40)
-sleep(0.5)
-turn(-45, 40)
-sleep(0.5)
-move(-2, 40)
-sleep(0.5)
-move(2, 40)
-sleep(0.5)
 
-print(round(cpos[0], 1), round(cpos[1], 1))
-print(round(cdir[0], 1), round(cdir[1], 1))
+def scan():
+    """
+    THIS IS MY WORK - Yueyue 2025
+    """
+    global last_markers
+
+    markers = r.see()
+    last_markers = []
+
+    for m in markers:
+        mtype = m.info.type
+        if mtype in ("CRATE", "DROP"):
+            last_markers.append(m)
+
+def find_box():
+    markers = r.see()
+    marker = markers[0]
+    turn(float(marker.bearing.y), 100)
+    sleep(.25)
+    print(f"Marker info: {float(marker.bearing.y), float(marker.dist)}")
+    if float(marker.bearing.y) > 1.0:
+        move((float(marker.dist)) / 2, 50)
+        sleep(.5)
+        markers = r.see()
+        marker = markers[0]
+        turn(float(marker.bearing.y), 100)
+        sleep(.25)
+        print(f"Marker info: {float(marker.bearing.y), float(marker.dist)}")
+        move((float(marker.dist)), 50)
+    else:
+        move((float(marker.dist)), 50)
+turn(-180, 50)
