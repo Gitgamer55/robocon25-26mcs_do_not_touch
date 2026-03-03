@@ -1,0 +1,42 @@
+- Calibration
+  - Pretty Good, we can start testing
+  - Recalibrate after hardware features
+    - Extra mass and different brain position
+    - Counterweight at back?
+- Game plan
+  - Turn calculation: Kaan will do that
+  - Grabby arms
+    - Have to be at least 1.5m??
+    - Or we can execute find_box() multiple times
+      - That is similar to going to the centre...
+      - But if we combine this with the arms, that may be a good combined strategy
+      - Box turning issues are... bad...
+        - We can possibly decompose a big turn down into small turns?
+        - Therefore minimise big turns
+        - Purple position (opponent's base)
+          - Box 1-2 or 4-3 (assuming we have no mommy longarms)
+          - Able to grab 2 boxes with 2 turns (total 40 degrees)
+          - Purple prime
+            - Using mommy long1.5arms
+            - Able to grab 4 boxes with 0 turns
+            - HIGH chance of crash due to extended arms
+        - Green position (the border of two opposite teams)
+          - 4-(3/1)-2
+          - Able to grab 3 boxes with 3 turns (total 100 degrees)
+        - Orange position (classic strategy)
+          - Simply run find_box() 4 times to grab all boxes
+          - (Almost) guaranteed win
+          - Able to grab 4 boxes with 4 turns (total 180)
+          - Riskiest strategy
+        - Green is current favourite
+  - Drops are 60, 80, 100, 120.
+  - OFFICIAL GAME PLAN:
+    1. Once the game starts, camp at the border of the two opposite teams. This needs to be done by 50. Once done, open the arms.
+      1.1. Move opposite, turn left, and then up. 
+      1.2. If possible, slowly back towards the wall. This will ensure that we don't get hit.
+    2. At 60, grab the box directly in front (4), and then grab a side box (3/1), and then the last box (2).
+    3. Go home. (No timestamp here). Retract the arms.
+    4. Repeat step 1 until the game ends. This has to be done by 10 seconds before each drop.
+      4.1. If Richard's stacking mechanism works, SKIP THE LAST DROP to stack all boxes that have been collected.
+    5. Do a dance.
+    
