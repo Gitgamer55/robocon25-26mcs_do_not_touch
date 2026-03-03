@@ -264,6 +264,15 @@ def work_to_coords(dest):
     angle = -math.degrees(math.atan2(det, dot))
     return [length, angle]
     
+def work_to_dir(direction):
+    cx, cy = cdir
+    dx, dy = direction
+
+    dot = cx * dx + cy * dy
+    determinant = cx * dy - cy * dx
+
+    angle = math.degrees(math.atan2(determinant, dot))
+    return -angle
     
 def dist_between(pos1,pos2):
     # Already optimal - math.hypot is fast and handles edge cases
