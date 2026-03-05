@@ -1,3 +1,4 @@
+
 - Calibration
   - Pretty Good, we can start testing
   - Recalibrate after hardware features
@@ -27,7 +28,7 @@
           - Simply run find_box() 4 times to grab all boxes
           - (Almost) guaranteed win
           - Able to grab 4 boxes with 4 turns (total 180)
-          - Riskiest strategy
+          - Riskiest strategy (if we do not count the suicide purple prime)
         - Green is current favourite
   - Drops are 60, 80, 100, 120.
   - OFFICIAL GAME PLAN:
