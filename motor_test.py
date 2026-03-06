@@ -279,18 +279,30 @@ def dist_between(pos1,pos2):
     # Could inline if only called once, but keeping for reusability
     return math.hypot(pos1[0]-pos2[0], pos1[1]-pos2[1])
 
-def move(dist, speed):
+def move(dist):
     # Motor 0 is right
     # Motor 1 is left
     if dist > 0:
-        r.motors[0] = 495 * (speed / 100)
-        r.motors[1] = 500 * (speed / 100)
+        r.motors[0] = 495 * 0.5
+        r.motors[1] = 500 * 0.5
     elif dist < 0:
-        r.motors[0] = -495 * (speed / 100)
-        r.motors[1] = -500 * (speed / 100)
-    t = (82 / speed) * abs(dist)
+        r.motors[0] = -495 * 0.5
+        r.motors[1] = -500 * 0.5
+    delay = (82 / 50) * abs(dist)
     print(f"Time to sleep: {t} For {abs(dist)} metres")
-    sleep(t)
+    
+    r.gpio[0].mode = robot.OUTPUT
+    startTime = time()
+    stateThen = r.gpio[0].digital
+    
+    while startTime + delay > time():
+        stateNow = r.gpio[0].digital
+        if stateNow == stateThen:
+            continue
+        stateThen = stateNow
+        end = time()
+        print(end - startTime)
+    
     r.motors[0] = 0
     r.motors[1] = 0
     update_pos(dist)
