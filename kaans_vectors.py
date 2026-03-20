@@ -10,12 +10,7 @@ can be viewed in the "plagerism violations" section on the main website
 '''
 
 '''
-UPDATE:
-
-- ALL MOTORS ARE NEGATIVE. You do not want to accidentally go backwards.
-- MAIN HAS BEEN IMPLEMENTED
-- CONCERNS
-    - Can we scan tags effectively?
+Kaan loves female wires
 '''
 
 team = "blue"
@@ -415,22 +410,28 @@ def find_box():
 cpos = [-2.5,-2.5]
 cdir = [1,0]
 
-starttime = time.perf_counter()
-boxes = 0
+markers = r.see()
+for marker in markers:
+    update_ALL(marker.dist,marker.bearing,marker.rotation,marker.id)
+
+# starttime = time.perf_counter()
+# boxes = 0
     
-while boxes < 4 or (time.perf_counter() - starttime) <= 160.0:
-    update_ALL()
-    go = work_to_coords([0, 0])
-    turn(go[1])
-    move(go[0])
-    update_ALL()
-    temp = 0
-    while temp < 360:
-        if find_box():
-            break
-        temp += 30
-        turn(30, 100)
-go = work_to_coords([-2.5, -2.5])
-turn(go[1])
-move(go[0])  
+# while boxes < 4 or (time.perf_counter() - starttime) <= 160.0:
+#     update_ALL()
+#     go = work_to_coords([0, 0])
+#     turn(go[1])
+#     move(go[0])
+#     update_ALL()
+#     temp = 0
+#     while temp < 360:
+#         if find_box():
+#             break
+#         temp += 30
+#         turn(30, 100)
+# go = work_to_coords([-2.5, -2.5])
+# turn(go[1])
+# move(go[0])  
+
+
 
