@@ -3,10 +3,37 @@ import robot
 from time import *
 
 
+'''
+Copyrighted by the UPRC (Ultra - Power Richard Company). Any plagerism from AI 
+is a direct violation to the UPRC's Copyright Laws which
+can be viewed in the "plagerism violations" section on the main website
+'''
+
+'''
+Kaan loves female wires
+'''
+
+'''
+IMPORTANT
+
+- ALL MOTORS ARE NEGATIVE
+- CONCERNS
+    - Can we see tags?
+    - To update position and direction using a tag reading: Run the following lines of code:
+        for marker in markers:
+            if marker.type == "ARENA":
+                update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
+        
+'''
+
 team = "blue"
+c = (1 / 0.75) / 1.18
 
 r = robot.Robot()
 r.enable_12v = True
+
+r.gpio[2].mode = robot.OUTPUT
+r.gpio[1].mode = robot.OUTPUT
 
 cpos = [0,0]
 #The current position of the robot on a unit grid
@@ -19,6 +46,8 @@ tag_blue = {
     100:[-2.5,3],
     101:[-1.5,3],
     102:[-0.5,3],
+
+
     103:[0.5,3],
     104:[1.5,3],
     105:[2.5,3],
@@ -278,15 +307,16 @@ def dist_between(pos1,pos2):
 
 
 def move(dist):
+    global c
     # Motor 0 is right
     # Motor 1 is left
 
     if dist > 0:
-        r.motors[0] = 495 * 0.5
-        r.motors[1] = 500 * 0.5
+        r.motors[0] = 490 * 0.5 * c
+        r.motors[1] = 500 * 0.5 * c
     elif dist < 0:
-        r.motors[0] = -495 * 0.5
-        r.motors[1] = -500 * 0.5
+        r.motors[0] = -490 * 0.5 * c
+        r.motors[1] = -500 * 0.5 * c
     else:
         return
 
@@ -308,12 +338,12 @@ def move(dist):
             totalTime = now - startTime
             stateThen = stateNow
             lastChangeTime = now
-            print(f"State changed after {timeSinceLastChange:.2f}s (total {totalTime:.2f}s)")
+            
 
         if now - lastChangeTime > 3:
             print("stuck")
-            r.motors[0] = -495 * 0.5
-            r.motors[1] = -500 * 0.5
+            r.motors[0] = 495 * 0.5
+            r.motors[1] = 500 * 0.5
             sleep(1)
             r.motors[0] = 0
             r.motors[1] = 0
@@ -331,7 +361,7 @@ def move(dist):
     update_pos(dist)
 
 
-def turn(deg, speed):
+def turn(deg, speed=50):
     if deg > 0:
         r.motors[0] = -495 * (speed / 100)
         r.motors[1] = 500 * (speed / 100)
@@ -348,9 +378,9 @@ def turn(deg, speed):
 
 
 def scan():
-    """
-    THIS IS MY WORK - Yueyue 2025
-    """
+    '''
+    This is Richard's work 2026
+    '''
     global last_markers
 
     markers = r.see()
@@ -363,53 +393,57 @@ def scan():
 
 def find_box():
     markers = r.see()
-    if markers.empty():
-        return
+    if len(markers) == 0:
+        return False
     marker = markers[0]
-    turn(float(marker.bearing.y), 100)
+    print("Found marker: info:", marker)
+    turn(float(marker.bearing.y), 50)
     sleep(.25)
     print(f"Marker info: {float(marker.bearing.y), float(marker.dist)}")
-    if float(marker.bearing.y) > 1.0:
-        move((float(marker.dist)) / 2, 50)
+    if float(marker.dist) > 1:
+        disctance = float(marker.dist) / 2.5
+        move(disctance)
         sleep(.5)
         markers = r.see()
-        marker = markers[0]
-        turn(float(marker.bearing.y), 100)
-        sleep(.25)
-        print(f"Marker info: {float(marker.bearing.y), float(marker.dist)}")
-        move((float(marker.dist)), 50)
+        if len(markers) == 0:
+            move(disctance)
+        else:
+            marker = markers[0]
+            turn(float(marker.bearing.y), 50)
+            sleep(.25)
+            print(f"Marker info: {float(marker.bearing.y), float(marker.dist)}")
+            
+            move((float(marker.dist)) + 0.1)
+        move(0.3)
     else:
-        move((float(marker.dist)), 50)
+        move((float(marker.dist)) + 0.1)
+    return True
 
 
 cpos = [-2.5,-2.5]
 cdir = [1,0]
-tag_id = tag_red
 
-go = work_to_coords([2,-2.5])
+markers = r.see()
+for marker in markers:
+    update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
 
-
-sleep(.5)
-move(go[0])
-print((cpos,cdir))
-go2 = work_to_coords([2,0])
-
-sleep(.5)
-print(go2)
-turn(go2[1],50)
-sleep(.5)
-move(go2[0])
-sleep(.5)
-
-go3 = work_to_coords([1,0])
-
-turn(go[1],50)
-sleep(.5)
-move(go[0])
-print((cpos,cdir))
-
-turn(work_to_dir([-1,0]),50)
-correct_pos()
-find_box()
-
+print(cpos)
+# starttime = time.perf_counter()
+# boxes = 0
+    
+# while boxes < 4 or (time.perf_counter() - starttime) <= 160.0:
+#     update_ALL()
+#     go = work_to_coords([0, 0])
+#     turn(go[1])
+#     move(go[0])
+#     update_ALL()
+#     temp = 0
+#     while temp < 360:
+#         if find_box():
+#             break
+#         temp += 30
+#         turn(30, 100)
+# go = work_to_coords([-2.5, -2.5])
+# turn(go[1])
+# move(go[0])  
 
