@@ -1,6 +1,31 @@
 import math
+import robot
+from time import *
+
+
+'''
+Copyrighted by the UPRC (Ultra - Power Richard Company). Any plagerism from AI 
+is a direct violation to the UPRC's Copyright Laws which
+can be viewed in the "plagerism violations" section on the main website
+'''
+
+'''
+UPDATE:
+
+- ALL MOTORS ARE NEGATIVE. You do not want to accidentally go backwards.
+- MAIN HAS BEEN IMPLEMENTED
+- CONCERNS
+    - Can we scan tags effectively?
+'''
 
 team = "blue"
+c = (1 / 0.75) / 1.18
+
+r = robot.Robot()
+r.enable_12v = True
+
+r.gpio[2].mode = robot.OUTPUT
+r.gpio[1].mode = robot.OUTPUT
 
 cpos = [0,0]
 #The current position of the robot on a unit grid
@@ -13,6 +38,8 @@ tag_blue = {
     100:[-2.5,3],
     101:[-1.5,3],
     102:[-0.5,3],
+
+
     103:[0.5,3],
     104:[1.5,3],
     105:[2.5,3],
@@ -135,24 +162,20 @@ orientation_map = {
     }
 
 
-match team:
-    case "blue":
-        tag_id = tag_blue
-    case "red":
-        tag_id = tag_red
-    case "yellow":
-        tag_id = tag_yellow
-    case "green":
-        tag_id = tag_green
-    case _:
-        raise ValueError("Invalid team")
+if team == "blue":
+    tag_id = tag_blue
+elif team == "red":
+    tag_id = tag_red
+elif team == "green":
+    tag_id = tag_green
+else:
+    team_id = tag_yellow
 
 def correct_pos():
-    # Use min/max for faster clamping - avoids multiple conditionals
     cpos[0] = max(-3, min(3, cpos[0]))
     cpos[1] = max(-3, min(3, cpos[1]))
     
-    # Optimized epsilon check - use abs() and single comparison
+    
     if abs(cpos[0]) < 0.000001:
         cpos[0] = 0
     if abs(cpos[1]) < 0.000001:
@@ -160,10 +183,10 @@ def correct_pos():
     
 
 def rotate_vector(vector, angle_degrees):
-    # Inline negation to avoid extra assignment
+    
     angle_radians = math.radians(-angle_degrees)
     
-    # Pre-calculate sin/cos once instead of calling twice
+    
     cos_a = math.cos(angle_radians)
     sin_a = math.sin(angle_radians)
     
@@ -176,9 +199,9 @@ def rotate_vector(vector, angle_degrees):
 
 
 def update_dir(angle,clockwise):
-    #Change the direction the robot is facing using the rotate_vector function
+    
     global cdir
-    # Use else to avoid redundant check - only one branch executes
+    
     if clockwise:
         cdir = rotate_vector(cdir, angle)
     else:
@@ -189,8 +212,7 @@ def update_dir(angle,clockwise):
 def update_pos(dist):
     global cpos
     global cdir
-    #It will update the position of our robot on a unit grid using the direction we are facing and the distance the robot moves
-    # Eliminate intermediate list creation - update in place
+    
     cpos[0] += cdir[0] * dist
     cpos[1] += cdir[1] * dist
 
@@ -200,21 +222,20 @@ def vectorcon(dist,angle):
     angle %= 360
     orientation = angle // 90
     angle %= 90
-    # Cache orientation multipliers to avoid multiple dictionary lookups
+    
     orient = orientation_map[orientation]
     if orientation % 2 != 0:
         angle = 90 - angle
-    # Pre-calculate radian conversion once
+    
     angle_rad = math.radians(angle)
-    # Calculate and apply orientation in one step
+    
     return [math.cos(angle_rad) * dist * orient[0], math.sin(angle_rad) * dist * orient[1]]
 
 def update_ALL(dist,bearing,rotation,tag):
     global cdir
     global cpos
     global tag_id
-    # Optimize tag_type lookup - use dictionary for O(1) lookup instead of if-elif chain
-    # This assumes tag coordinates are exactly -3 or 3
+    
     tag = tag_id[tag]
     if tag[0] == -3:
         tag_type = "left"
@@ -229,47 +250,187 @@ def update_ALL(dist,bearing,rotation,tag):
         rotation += 360
     tag_dir = tag_map[tag_type]
     tag_dir = rotate_vector(tag_dir, rotation)
-    # Calculate vector_guide once and reuse
+    
     vg_x = tag_dir[0] * dist
     vg_y = tag_dir[1] * dist
     cpos[0] = tag[0] + vg_x
     cpos[1] = tag[1] + vg_y
-    # Optimize: avoid division then negation - just negate the normalized direction
+    
     vector_guide = [-tag_dir[0], -tag_dir[1]]
     if bearing < 0:
         bearing += 360
     
-    cdir = rotate_vector(vector_guide, -bearing)
+    
+    cdir = rotate_vector(vector_guide, bearing)
 
 def work_to_coords(dest):
-    # Calculate differences once
+    
     dx = dest[0] - cpos[0]
     dy = dest[1] - cpos[1]
-    length = math.hypot(dx, dy)  # Inline dist_between to avoid function call overhead
+    length = math.hypot(dx, dy)  
     
-    # Avoid division by zero
+    
     if length == 0:
         return [0, 0]
     
-    # Normalize vector
+    
     inv_length = 1.0 / length
     vx = dx * inv_length
     vy = dy * inv_length
     
-    # Calculate dot product and determinant (fixed: det should be cross product)
+   
     dot = vx * cdir[0] + vy * cdir[1]
-    det = vx * cdir[1] - vy * cdir[0]  # Fixed: proper cross product for 2D
-    
-    # Inline negation
-    angle = -math.degrees(math.atan2(det, dot))
+    det_cw = vy * cdir[0] - vx * cdir[1]
+    angle = -math.degrees(math.atan2(det_cw, dot))
     return [length, angle]
     
+def work_to_dir(direction):
+    cx, cy = cdir
+    dx, dy = direction
+
+    dot = cx * dx + cy * dy
+    determinant = cx * dy - cy * dx
+
+    angle = math.degrees(math.atan2(determinant, dot))
+    return -angle
     
 def dist_between(pos1,pos2):
-    # Already optimal - math.hypot is fast and handles edge cases
-    # Could inline if only called once, but keeping for reusability
     return math.hypot(pos1[0]-pos2[0], pos1[1]-pos2[1])
 
 
+def move(dist):
+    global c
+    # Motor 0 is right
+    # Motor 1 is left
 
+    if dist > 0:
+        r.motors[0] = 490 * 0.5 * c
+        r.motors[1] = 500 * 0.5 * c
+    elif dist < 0:
+        r.motors[0] = -490 * 0.5 * c
+        r.motors[1] = -500 * 0.5 * c
+    else:
+        return
+
+    delay = (82 / 50) * abs(dist)
+    print(f"Time to move: {delay} for {abs(dist)} metres")
+
+    r.gpio[0].mode = robot.INPUT
+
+    startTime = perf_counter()
+    endTime = startTime + delay
+    stateThen = r.gpio[0].digital
+    lastChangeTime = startTime
+
+    while perf_counter() < endTime:
+        stateNow = r.gpio[0].digital
+        now = perf_counter()
+        if stateNow != stateThen:
+            timeSinceLastChange = now - lastChangeTime
+            totalTime = now - startTime
+            stateThen = stateNow
+            lastChangeTime = now
+            
+
+        if now - lastChangeTime > 3:
+            print("stuck")
+            r.motors[0] = 495 * 0.5
+            r.motors[1] = 500 * 0.5
+            sleep(1)
+            r.motors[0] = 0
+            r.motors[1] = 0
+            return
+
+            '''
+            We must rescan and know our position after we have backed out ourselves from a robot or something.
+            I wrote sample code to what we could do after we collide (reverse ourselves) and 
+            this can obviously easily be changed if we agree to something different.
+            We should also agree on how long we reverse for.
+            '''
+
+    r.motors[0] = 0
+    r.motors[1] = 0
+    update_pos(dist)
+
+
+def turn(deg, speed=50):
+    if deg > 0:
+        r.motors[0] = -495 * (speed / 100)
+        r.motors[1] = 500 * (speed / 100)
+    else:
+        r.motors[1] = -500 * (speed / 100)
+        r.motors[0] = 495 * (speed / 100)
+    t = abs(0.178/90*deg) / (speed / 100)
+    print(f"Time to sleep: {t} For {deg} degrees")
+    sleep(t)
+    r.motors[0] = 0
+    r.motors[1] = 0
+    print(deg)
+    update_dir(deg,True)
+
+
+def scan():
+    '''
+    This is Richard's work 2026
+    '''
+    global last_markers
+
+    markers = r.see()
+    last_markers = []
+
+    for m in markers:
+        mtype = m.info.type
+        if mtype in ("CRATE", "DROP"):
+            last_markers.append(m)
+
+def find_box():
+    markers = r.see()
+    if len(markers) == 0:
+        return False
+    marker = markers[0]
+    print("Found marker: info:", marker)
+    turn(float(marker.bearing.y), 50)
+    sleep(.25)
+    print(f"Marker info: {float(marker.bearing.y), float(marker.dist)}")
+    if float(marker.dist) > 1:
+        disctance = float(marker.dist) / 2.5
+        move(disctance)
+        sleep(.5)
+        markers = r.see()
+        if len(markers) == 0:
+            move(disctance)
+        else:
+            marker = markers[0]
+            turn(float(marker.bearing.y), 50)
+            sleep(.25)
+            print(f"Marker info: {float(marker.bearing.y), float(marker.dist)}")
+            
+            move((float(marker.dist)) + 0.1)
+        move(0.3)
+    else:
+        move((float(marker.dist)) + 0.1)
+    return True
+
+
+cpos = [-2.5,-2.5]
+cdir = [1,0]
+
+starttime = time.perf_counter()
+boxes = 0
+    
+while boxes < 4 or (time.perf_counter() - starttime) <= 160.0:
+    update_ALL()
+    go = work_to_coords([0, 0])
+    turn(go[1])
+    move(go[0])
+    update_ALL()
+    temp = 0
+    while temp < 360:
+        if find_box():
+            break
+        temp += 30
+        turn(30, 100)
+go = work_to_coords([-2.5, -2.5])
+turn(go[1])
+move(go[0])  
 
