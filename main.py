@@ -13,27 +13,17 @@ can be viewed in the "plagerism violations" section on the main website
 Kaan loves female wires
 '''
 
-'''
-IMPORTANT
 
-- ALL MOTORS ARE NEGATIVE
-- CONCERNS
-    - Can we see tags?
-    - To update position and direction using a tag reading: Run the following lines of code:
-        for marker in markers:
-            if marker.type == "ARENA":
-                update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
-        
-'''
 
-team = "blue"
-c = (1 / 0.75) / 1.18
+team = "red"
+c = (-1 / 0.75) / 1.18
 
 r = robot.Robot()
 r.enable_12v = True
 
 r.gpio[2].mode = robot.OUTPUT
 r.gpio[1].mode = robot.OUTPUT
+r.gpio[3].mode = robot.INPUT
 
 cpos = [0,0]
 #The current position of the robot on a unit grid
@@ -177,7 +167,7 @@ elif team == "red":
 elif team == "green":
     tag_id = tag_green
 else:
-    team_id = tag_yellow
+    tag_id = tag_yellow
 
 def correct_pos():
     cpos[0] = max(-3, min(3, cpos[0]))
@@ -340,13 +330,16 @@ def move(dist):
             lastChangeTime = now
             
 
-        if now - lastChangeTime > 3:
+        if now - lastChangeTime > 2:
             print("stuck")
             r.motors[0] = 495 * 0.5
             r.motors[1] = 500 * 0.5
             sleep(1)
             r.motors[0] = 0
             r.motors[1] = 0
+            markers = r.see()
+            for marker in markers:
+                update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
             return
 
             '''
@@ -370,7 +363,7 @@ def turn(deg, speed=50):
         r.motors[0] = 495 * (speed / 100)
     t = abs(0.178/90*deg) / (speed / 100)
     print(f"Time to sleep: {t} For {deg} degrees")
-    sleep(t)
+    sleep(t*2.5)
     r.motors[0] = 0
     r.motors[1] = 0
     print(deg)
@@ -420,30 +413,87 @@ def find_box():
     return True
 
 
-cpos = [-2.5,-2.5]
-cdir = [1,0]
-
-markers = r.see()
-for marker in markers:
-    update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
-
-print(cpos)
-# starttime = time.perf_counter()
-# boxes = 0
+def stack():
+    r.gpio[1].digital = True
+    r.motors[0] = 300
+    r.motors[1] = 300
+    while r.gpio[3].digital == False:
+        continue
+    r.gpio[1].digital = False
+    r.motors[0] = 0
+    r.motors[1] = 0
+    sleep(.25)
+    r.gpio[2].digital = True
+    r.motors[0] = 300
+    r.motors[1] = 300
+    sleep(5)
+    r.gpio[2].digital = False
+    r.motors[0] = 0
+    r.motors[1] = 0
     
-# while boxes < 4 or (time.perf_counter() - starttime) <= 160.0:
-#     update_ALL()
-#     go = work_to_coords([0, 0])
-#     turn(go[1])
-#     move(go[0])
-#     update_ALL()
-#     temp = 0
-#     while temp < 360:
-#         if find_box():
-#             break
-#         temp += 30
-#         turn(30, 100)
-# go = work_to_coords([-2.5, -2.5])
-# turn(go[1])
-# move(go[0])  
+    
 
+cpos = [-2.5,-2.5]
+cdir = [1/math.sqrt(2.0),1/math.sqrt(2.0)]
+
+"""markers = r.see()
+if len(markers) == 0:
+    pass
+else:
+    for marker in markers:
+        if marker.info.type == "WALL":362
+            update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)"""
+
+
+def main():
+    r.gpio[2].digital = True
+    move(2)
+    sleep(5)
+    r.gpio[2].digital = False
+    r.motors[0] = 0
+    r.motors[1] = 0
+    markers = r.see()
+    if len(markers) == 0:
+        pass
+    else:
+        for marker in markers:
+            update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
+    collection = [[-1,-1],[-1,1],[1,-1],[1,1]]
+    starttime = time.perf_counter()
+    boxes = 0
+    lengths = {}
+    spots = []
+    go2 = work_to_coords([-1,-1])
+    turn(go2[1])
+    move(go2[0])
+    while boxes < 4 and (time.perf_counter() - starttime) <= 160.0:
+        for marker in markers:
+            update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
+        for location in collection:
+            distance_to = dist_between(cpos,location)
+            lengths[distance_to] = location
+            spots.append(distance_to)
+        go = work_to_coords(lengths[min(spots)])
+        turn(go[1])
+        move(go[0])
+        update_ALL()
+        temp = 0
+        while temp < 360:
+            if find_box():
+                break
+            temp += 30
+            turn(30, 100)
+        stack()
+        box += 1
+        markers = r.see()
+        for marker in markers:
+            update_ALL(marker.dist,marker.bearing.y,marker.rotation.y,marker.info.id)
+    go = work_to_coords([-2.5, -2.5])
+    turn(go[1])
+    move(go[0])  
+
+r.gpio[1].digital = True
+move(3)
+r.gpio[1].digital = False
+r.motors[0] = 0
+r.motors[1] = 0
